@@ -24,6 +24,8 @@ endif()
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Linux|CYGWIN")
     set(LIBRARIES "")
+elseif(QNX)
+    set(LIBRARIES regex socket)
 else()
     set(LIBRARIES socket)
 endif()
@@ -34,7 +36,11 @@ endif(WITH_SYSTEMD)
 
 set(DLT_LIBRARIES dlt ${GTEST_LIBS} ${LIBRARIES})
 set(DLT_DAEMON_LIBRARIES dlt_daemon ${GTEST_LIBS} ${LIBRARIES} ${SYSTEMD_LIBS})
-set(DLT_CONTROL_LIBRARIES dlt dlt_control_common_lib ${GTEST_LIBS})
+if(QNX)
+  set(DLT_CONTROL_LIBRARIES dlt dlt_control_common_lib ${GTEST_LIBS} ${LIBRARIES})
+else()
+  set(DLT_CONTROL_LIBRARIES dlt dlt_control_common_lib ${GTEST_LIBS})
+endif()
 
 #Receiver used for QTs. add_test() is not required
 add_executable(dlt_test_receiver dlt_test_receiver.c)
