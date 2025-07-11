@@ -357,7 +357,7 @@ add_subdirectory(testscripts)
 if(WITH_DLT_UNIT_TESTS)
     find_package(GTest)
 
-    if(NOT GTEST_FOUND)
+    if(NOT GTEST_FOUND OR QNX)
         add_subdirectory(googletest)
     endif()
     enable_testing()
