@@ -145,6 +145,11 @@ cleanup()
 #
 setupTest()
 {
+    if [ "$OS" = "QNX" ]; then
+        ipaddr="127.0.0.1"
+    else
+        ipaddr="::1"
+    fi
     if [ "$(touch "$pidFile")" ]; then
         echo "Error in creating dlt.pid file"
         return 1

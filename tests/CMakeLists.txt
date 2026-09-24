@@ -13,7 +13,7 @@ configure_file(${PROJECT_SOURCE_DIR}/tests/test_dlt.conf ${CMAKE_CURRENT_BINARY_
 
 if(WITH_DLT_INSTALLED_TESTS)
     set(DLT_TEST_DIR ${CMAKE_INSTALL_BINDIR}/dlt_tests)
-    install(FILES testfile.dlt testfilter.txt testfile_filetransfer.txt DESTINATION ${DLT_TEST_DIR})
+    install(FILES testfile.dlt testfile-v2.dlt testfilter.txt testfile_filetransfer.txt DESTINATION ${DLT_TEST_DIR})
 endif(WITH_DLT_INSTALLED_TESTS)
 
 if("${GTEST_BOTH_LIBRARIES}" STREQUAL "")
@@ -56,7 +56,15 @@ string(CONCAT CMD_SEQ "${CMD_SEQ_SLEEP};"
 set(TEST_ENV_PATH "PATH=$<TARGET_FILE_DIR:dlt-daemon>:$ENV{PATH}")
 set(TEST_ENV_DAEMON "DLT_UT_DAEMON_PATH=$<TARGET_FILE:dlt-daemon>")
 set(TEST_ENV_DAEMON_CONFIG "DLT_UT_CONFIG_PATH=$<TARGET_FILE_DIR:dlt-daemon>/dlt.conf")
-set(TEST_ENV_LO_IPv6 "DLT_IPv6_LO=::1")
+
+if(QNX)
+    if(WITH_DLT_USE_IPv6)
+        set(TEST_ENV_LO_IPv6 "DLT_IPv6_LO=::1")
+    endif()
+else()
+    set(TEST_ENV_LO_IPv6 "DLT_IPv6_LO=::1")
+endif()
+
 if(WITH_DLT_USE_IPv6)
     string(CONCAT TEST_ENV "${TEST_ENV_PATH};"
                            "${TEST_ENV_DAEMON};"
@@ -135,6 +143,12 @@ foreach(target IN LISTS TARGET_LIST)
 
     add_executable(${target} ${target_SRCS})
     target_link_libraries(${target} ${DLT_LIBRARIES})
+     if(WITH_DLT_INSTALLED_TESTS)
+        install(TARGETS ${target} RUNTIME DESTINATION ${DLT_TEST_DIR})
+        if(EXISTS ${PROJECT_SOURCE_DIR}/tests/${target}.sh)
+            install(PROGRAMS ${target}.sh DESTINATION ${DLT_TEST_DIR})
+        endif()
+    endif(WITH_DLT_INSTALLED_TESTS)
     if(EXISTS ${PROJECT_SOURCE_DIR}/tests/${target}.sh)
         configure_file(${PROJECT_SOURCE_DIR}/tests/${target}.sh ${PROJECT_BINARY_DIR}/tests COPYONLY)
         set(CMD_SEQ_SETUP "sh $<TARGET_FILE:${target}>.sh")

@@ -15,6 +15,10 @@
  * For further information see http://www.covesa.org/.
  */
 
+#ifdef __QNXNTO__
+#include <ctype.h>
+#include <string.h>
+#endif
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
